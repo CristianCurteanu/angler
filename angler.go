@@ -22,7 +22,7 @@ type HTTPClient interface {
 type SerializationFunc func(any) ([]byte, error)
 type DeserializationFunc func(data []byte, v any) error
 type RequestOption func(*Request)
-type statusHandlerFunc func(*http.Response) (any, error)
+type StatusHandlerFunc func(*http.Response) (any, error)
 
 type Request struct {
 	method               string
@@ -32,8 +32,8 @@ type Request struct {
 	client               HTTPClient
 	serialize            SerializationFunc
 	deserialize          DeserializationFunc
-	statusHandlers       map[int]statusHandlerFunc
-	defaultStatusHandler statusHandlerFunc
+	statusHandlers       map[int]StatusHandlerFunc
+	defaultStatusHandler StatusHandlerFunc
 	body                 any
 }
 
@@ -192,24 +192,24 @@ func WithDeserialize(deserialize DeserializationFunc) RequestOption {
 }
 
 // WithStatusHandlers sets the status handlers map for the request
-func WithStatusHandlers(handlers map[int]statusHandlerFunc) RequestOption {
+func WithStatusHandlers(handlers map[int]StatusHandlerFunc) RequestOption {
 	return func(r *Request) {
 		r.statusHandlers = handlers
 	}
 }
 
 // WithStatusHandler adds a single status handler for a specific status code
-func WithStatusHandler(statusCode int, handler statusHandlerFunc) RequestOption {
+func WithStatusHandler(statusCode int, handler StatusHandlerFunc) RequestOption {
 	return func(r *Request) {
 		if r.statusHandlers == nil {
-			r.statusHandlers = make(map[int]statusHandlerFunc)
+			r.statusHandlers = make(map[int]StatusHandlerFunc)
 		}
 		r.statusHandlers[statusCode] = handler
 	}
 }
 
 // WithDefaultStatusHandler sets the default status handler for unhandled status codes
-func WithDefaultStatusHandler(handler statusHandlerFunc) RequestOption {
+func WithDefaultStatusHandler(handler StatusHandlerFunc) RequestOption {
 	return func(r *Request) {
 		r.defaultStatusHandler = handler
 	}
